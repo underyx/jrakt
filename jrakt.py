@@ -15,8 +15,8 @@ def openJinniSession():
     return jinni
 
 
-def getMovieLinks(page=1, viewstate=None, total_pages=None):
-    links = []
+def getLinkRatings(page=1, viewstate=None, total_pages=None):
+    links = {}
 
     r = jinni.post('http://www.jinni.com/user/%s/ratings/' % username, data={'userRatingForm': 'userRatingForm', 'userRatingForm:j_id269': 'idx%s' % page, 'javax.faces.ViewState': viewstate})
 
@@ -30,16 +30,26 @@ def getMovieLinks(page=1, viewstate=None, total_pages=None):
     print 'Fetching movie links from page %s of %s' % (page, total_pages)
 
     for div in ratings_page(id=re.compile('ratingStrip\[\d+\]')):
-        print div.span
         if div.find(id=re.compile('likelyOrNotForMeContainer\[\d+\]')).get('style') == 'display: none':
-            links.append('http://www.jinni.com%s' % div.a.get('href'))
+            link = 'http://www.jinni.com%s' % div.a.get('href')
+            rating = div.find(class_='digitRate').string[:-10]
+            links[link] = rating
 
     if page < total_pages:
         viewstate = ratings_page.find(id='javax.faces.ViewState').get('value')
-        links += getMovieLinks(page + 1, viewstate, total_pages)
+        links += getLinkRatings(page + 1, viewstate, total_pages)
 
     return links
 
 
+def getIMDBIDof(link):
+    movie_page = BeautifulSoup(jinni.get(link).text)
+    imdbidindex = int(str(movie_page).find('http://www.imdb.com/title/')) + 26
+    imdbid = str(movie_page)[imdbidindex:imdbidindex+9]
+
+    return imdbid
+
 jinni = openJinniSession()
-links = getMovieLinks()
+ratings = getLinkRatings()
+for link in ratings.keys():
+    ratings[getIMDBIDof(link)] = ratings.pop(link)
