@@ -30,7 +30,9 @@ def getMovieLinks(page=1, viewstate=None, total_pages=None):
     print 'Fetching movie links from page %s of %s' % (page, total_pages)
 
     for div in ratings_page(id=re.compile('ratingStrip\[\d+\]')):
-        links.append('http://www.jinni.com%s' % div.a.get('href'))
+        print div.span
+        if div.find(id=re.compile('likelyOrNotForMeContainer\[\d+\]')).get('style') == 'display: none':
+            links.append('http://www.jinni.com%s' % div.a.get('href'))
 
     if page < total_pages:
         viewstate = ratings_page.find(id='javax.faces.ViewState').get('value')
