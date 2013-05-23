@@ -9,16 +9,16 @@ def openJinniSession():
     print 'Initializing...'
     jinni = requests.session()
     jinni.get('http://www.jinni.com')
-    print 'Logging in as %s...' % username
-    jinni.post('http://www.jinni.com/jinniLogin', {'user': username, 'pass': password, 'loginOverlayURL': '', 'loginSource': 'loginOverlay'})
-    print 'Logged in as %s' % username
+    print 'Logging in as %s...' % jinni['username']
+    jinni.post('http://www.jinni.com/jinniLogin', {'user': jinni['username'], 'pass': jinni['password'], 'loginOverlayURL': '', 'loginSource': 'loginOverlay'})
+    print 'Logged in as %s' % jinni['username']
     return jinni
 
 
 def getLinkRatings(page=1, viewstate=None, total_pages=None):
     links = {}
 
-    r = jinni.post('http://www.jinni.com/user/%s/ratings/' % username, data={'userRatingForm': 'userRatingForm', 'userRatingForm:j_id269': 'idx%s' % page, 'javax.faces.ViewState': viewstate})
+    r = jinni.post('http://www.jinni.com/user/%s/ratings/' % jinni['username'], data={'userRatingForm': 'userRatingForm', 'userRatingForm:j_id269': 'idx%s' % page, 'javax.faces.ViewState': viewstate})
 
     ratings_page = BeautifulSoup(r.text)
 
