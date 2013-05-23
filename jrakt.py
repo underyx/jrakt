@@ -7,6 +7,7 @@ from bs4 import BeautifulSoup
 
 def openJinniSession():
     print 'Initializing...'
+    global jinni
     jinni = requests.session()
     jinni.get('http://www.jinni.com')
     print 'Logging in as %s...' % username
@@ -49,7 +50,12 @@ def getIMDBIDof(link):
 
     return imdbid
 
-jinni = openJinniSession()
-ratings = getLinkRatings()
-for link in ratings.keys():
-    ratings[getIMDBIDof(link)] = ratings.pop(link)
+
+def main():
+    jinni = openJinniSession()
+    ratings = getLinkRatings()
+    for link in ratings.keys():
+        ratings[getIMDBIDof(link)] = ratings.pop(link)
+
+if __name__ == '__main__':
+    main()
